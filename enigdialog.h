@@ -33,7 +33,7 @@ private slots:
 
     void on_Encrypt_Button_pressed();
 
-    void on_pushButton_2_pressed();
+    void on_Dencrypt_Button_pressed();
 //--------------------------------------------------
 
 
@@ -105,6 +105,8 @@ private slots:
     void on_L_Button_pressed();
 
     void on_clear_panel_pressed();
+
+
 
 private:
     Ui::EnigDialog *ui;

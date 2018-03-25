@@ -420,16 +420,20 @@ EnigDialog::~EnigDialog()
 
 
 std::vector<char>input;
+
 QString plug_key;
+
 std::map<char,char>plug_board;
+
 bool begin = true; // bool для удобства отображения plug
 
-std::vector<bool>is_up;
+std::vector<bool>is_up; // show uppercase letter or lower case letter was entered
 
-std::vector<bool>on_off(26,true);
-int elem_number = 0; // номер введенного элемента
 
-//Функции вращения роторов
+std::vector<bool>on_off(26,true); //indicates what letters were entered on plugboard
+
+
+// functions indicate rotor rotating
 
 void EnigDialog::on_slow_rotor_button_plus_pressed()
 {
@@ -515,7 +519,7 @@ void EnigDialog::on_Encrypt_Button_pressed()
     if(input.size()%2 != 0 && input.size() != 0 )
         input.pop_back();
 
-    for (int i = 0; i < input.size(); i += 2)
+    for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
     {
          plug_board[input[i + 1]] = input[i];
          plug_board[input[i]] = input[i + 1];
@@ -564,7 +568,7 @@ void EnigDialog::on_Encrypt_Button_pressed()
     ui->output_text->setText(str);
 }
 
-void EnigDialog::on_pushButton_2_pressed() //decryption
+void EnigDialog::on_Dencrypt_Button_pressed()
 {
     //Заполняем контейнеры с использованием коммутационной панели
 
@@ -1432,3 +1436,5 @@ void EnigDialog::on_clear_panel_pressed()
     ui->M_Button->setEnabled(on_off[abc_to_number['M']]);
     ui->L_Button->setEnabled(on_off[abc_to_number['L']]);
 }
+
+

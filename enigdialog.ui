@@ -236,7 +236,7 @@
     <string>Encryption</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="Dencrypt_Button">
    <property name="geometry">
     <rect>
      <x>270</x>

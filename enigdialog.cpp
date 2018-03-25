@@ -411,6 +411,9 @@ EnigDialog::EnigDialog(QWidget *parent) :
     ui->slow_rotor_letter->setValidator(new QRegExpValidator(exp,this));
     ui->middle_rotor_letter->setValidator(new QRegExpValidator(exp,this));
     ui->fast_rotor_letter->setValidator(new QRegExpValidator(exp,this));
+
+
+
 }
 
 EnigDialog::~EnigDialog()
@@ -419,14 +422,16 @@ EnigDialog::~EnigDialog()
 }
 
 
+char last_letter_on_plug = 'A';
+
+
 std::vector<char>input;
 
 QString plug_key;
 
 std::map<char,char>plug_board;
 
-bool begin = true; // bool для удобства отображения plug
-
+bool begin = true; // bool для удобства отображения plug для черточки между буквами
 std::vector<bool>is_up; // show uppercase letter or lower case letter was entered
 
 
@@ -519,11 +524,34 @@ void EnigDialog::on_Encrypt_Button_pressed()
     if(input.size()%2 != 0 && input.size() != 0 )
         input.pop_back();
 
-    for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
+    if(plug_key.size() % 2 != 0)
     {
-         plug_board[input[i + 1]] = input[i];
-         plug_board[input[i]] = input[i + 1];
+        std::string temp_plug_key = plug_key.toStdString();
+        temp_plug_key.pop_back();
+
+        plug_key = QString::fromUtf8(temp_plug_key.c_str());
+        ui->Plug_board_monitor->setText(plug_key);
+
+        begin = true;
+
+        on_off[abc_to_number[last_letter_on_plug]] = true;
+
+        update();
+
     }
+
+
+
+
+    if(!input.empty())
+    {
+        for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
+        {
+             plug_board[input[i + 1]] = input[i];
+             plug_board[input[i]] = input[i + 1];
+        }
+    }
+
 
     QString str=ui->input_text->toPlainText();
 
@@ -573,13 +601,37 @@ void EnigDialog::on_Dencrypt_Button_pressed()
     //Заполняем контейнеры с использованием коммутационной панели
 
      if(input.size()%2 != 0 && input.size() != 0 )
-        input.pop_back();
+     {
+          input.pop_back();
+     }
 
-    for (int i = 0; i < input.size(); i += 2)
-    {
-         plug_board[input[i + 1]] = input[i];
-         plug_board[input[i]] = input[i + 1];
-    }
+
+     if(plug_key.size() % 2 != 0)
+     {
+         std::string temp_plug_key = plug_key.toStdString();
+         temp_plug_key.pop_back();
+
+         plug_key = QString::fromUtf8(temp_plug_key.c_str());
+         ui->Plug_board_monitor->setText(plug_key);
+
+         begin = true;
+
+         on_off[abc_to_number[last_letter_on_plug]] = true;
+
+         update();
+     }
+
+
+
+
+     if(!input.empty())
+     {
+         for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
+         {
+              plug_board[input[i + 1]] = input[i];
+              plug_board[input[i]] = input[i + 1];
+         }
+     }
 
 
     QString str=ui->input_text->toPlainText();
@@ -590,7 +642,7 @@ void EnigDialog::on_Dencrypt_Button_pressed()
 
 
 
-    for(int i = 0;i<input_text.size();i++)
+    for(int i = 0; i<input_text.size() ;i++)
     {
 
         input_text[i] = toupper(input_text[i]);
@@ -679,11 +731,9 @@ void EnigDialog::on_fast_rotor_letter_textChanged(const QString &arg1)
 
 
 
-
-
 void EnigDialog::on_Q_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('Q');
 
@@ -701,19 +751,20 @@ void EnigDialog::on_Q_Button_pressed()
 
         ui->Plug_board_monitor->setText(plug_key);
 
-         on_off[abc_to_number['Q']] = false;
+        on_off[abc_to_number['Q']] = false;
         ui->Q_Button->setEnabled(on_off[abc_to_number['Q']]);
+
+        last_letter_on_plug = 'Q';
+
     }
 
 }
 
 void EnigDialog::on_W_Button_pressed()
 {
-     if(input.size()<=20)
+     if(input.size()<20)
      {
          input.push_back('W');
-
-
 
          if(begin)
          {
@@ -730,6 +781,8 @@ void EnigDialog::on_W_Button_pressed()
 
           on_off[abc_to_number['W']] = false;
          ui->W_Button->setEnabled(on_off[abc_to_number['W']]);
+
+         last_letter_on_plug = 'W';
      }
 
 
@@ -738,7 +791,7 @@ void EnigDialog::on_W_Button_pressed()
 
 void EnigDialog::on_E_Button_pressed()
 {
-     if(input.size()<=20)
+     if(input.size()<20)
      {
          input.push_back('E');
 
@@ -757,16 +810,19 @@ void EnigDialog::on_E_Button_pressed()
 
          on_off[abc_to_number['E']] = false;
          ui->E_Button->setEnabled(on_off[abc_to_number['E']]);
+
+
+         last_letter_on_plug = 'E';
      }
 
 
 
 
-} //std::vector<bool>last_entered_button
+}
 
 void EnigDialog::on_R_Button_pressed()
 {
-         if(input.size()<=20)
+         if(input.size()<20)
          {
              input.push_back('R');
 
@@ -785,6 +841,9 @@ void EnigDialog::on_R_Button_pressed()
 
                 on_off[abc_to_number['R']] = false;
                ui->R_Button->setEnabled(on_off[abc_to_number['R']]);
+
+
+             last_letter_on_plug = 'R';
          }
 
 
@@ -822,41 +881,13 @@ void EnigDialog::on_Delete_button_pressed() //в самый низ
     }
    ui->Plug_board_monitor->setText(plug_key);
   // Список обновления всех кнопок
-   ui->Q_Button->setEnabled(on_off[abc_to_number['Q']]);
-   ui->W_Button->setEnabled(on_off[abc_to_number['W']]);
-   ui->E_Button->setEnabled(on_off[abc_to_number['E']]);
-   ui->R_Button->setEnabled(on_off[abc_to_number['R']]);
-   ui->T_Button->setEnabled(on_off[abc_to_number['T']]);
-   ui->Z_Button->setEnabled(on_off[abc_to_number['Z']]);
-   ui->U_Button->setEnabled(on_off[abc_to_number['U']]);
-   ui->I_Button->setEnabled(on_off[abc_to_number['I']]);
-   ui->O_Button->setEnabled(on_off[abc_to_number['O']]);
-   //----------------------------------------------------
-   ui->A_Button->setEnabled(on_off[abc_to_number['A']]);
-   ui->S_Button->setEnabled(on_off[abc_to_number['S']]);
-   ui->D_Button->setEnabled(on_off[abc_to_number['D']]);
-   ui->F_Button->setEnabled(on_off[abc_to_number['F']]);
-   ui->G_Button->setEnabled(on_off[abc_to_number['G']]);
-   ui->H_Button->setEnabled(on_off[abc_to_number['H']]);
-   ui->J_Button->setEnabled(on_off[abc_to_number['J']]);
-   ui->K_Button->setEnabled(on_off[abc_to_number['K']]);
-
-  //----------------------------------------------------
-   ui->P_Button->setEnabled(on_off[abc_to_number['P']]);
-   ui->Y_Button->setEnabled(on_off[abc_to_number['Y']]);
-   ui->X_Button->setEnabled(on_off[abc_to_number['X']]);
-   ui->C_Button->setEnabled(on_off[abc_to_number['C']]);
-   ui->V_Button->setEnabled(on_off[abc_to_number['V']]);
-   ui->B_Button->setEnabled(on_off[abc_to_number['B']]);
-   ui->N_Button->setEnabled(on_off[abc_to_number['N']]);
-   ui->M_Button->setEnabled(on_off[abc_to_number['M']]);
-   ui->L_Button->setEnabled(on_off[abc_to_number['L']]);
+    update();
 
 }
 
 void EnigDialog::on_T_Button_pressed()
 {
-      if(input.size()<=20)
+      if(input.size()<20)
       {
           input.push_back('T');
 
@@ -875,6 +906,8 @@ void EnigDialog::on_T_Button_pressed()
 
              on_off[abc_to_number['T']] = false;
             ui->T_Button->setEnabled(on_off[abc_to_number['T']]);
+
+            last_letter_on_plug = 'T';
       }
 
 
@@ -882,7 +915,7 @@ void EnigDialog::on_T_Button_pressed()
 
 void EnigDialog::on_Z_Button_pressed()
 {
-      if(input.size()<=20)
+      if(input.size()<20)
       {
           input.push_back('Z');
 
@@ -901,13 +934,15 @@ void EnigDialog::on_Z_Button_pressed()
 
             on_off[abc_to_number['Z']] = false;
             ui->Z_Button->setEnabled(on_off[abc_to_number['Z']]);
+
+            last_letter_on_plug = 'Z';
       }
 
 }
 
 void EnigDialog::on_U_Button_pressed()
 {
-     if(input.size()<=20)
+     if(input.size()<20)
      {
          input.push_back('U');
 
@@ -926,13 +961,15 @@ void EnigDialog::on_U_Button_pressed()
 
             on_off[abc_to_number['U']] = false;
            ui->U_Button->setEnabled(on_off[abc_to_number['U']]);
+
+           last_letter_on_plug = 'U';
      }
 
 }
 
 void EnigDialog::on_I_Button_pressed()
 {
-     if(input.size()<=20)
+     if(input.size()<20)
      {
          input.push_back('I');
 
@@ -951,13 +988,15 @@ void EnigDialog::on_I_Button_pressed()
 
             on_off[abc_to_number['I']] = false;
            ui->I_Button->setEnabled(on_off[abc_to_number['I']]);
+
+           last_letter_on_plug = 'I';
      }
 
 }
 
 void EnigDialog::on_O_Button_pressed()
 {
-     if(input.size()<=20)
+     if(input.size()<20)
      {
          input.push_back('O');
 
@@ -976,13 +1015,16 @@ void EnigDialog::on_O_Button_pressed()
 
             on_off[abc_to_number['O']] = false;
            ui->O_Button->setEnabled(on_off[abc_to_number['O']]);
+
+
+           last_letter_on_plug = 'O';
      }
 
 }
 
 void EnigDialog::on_A_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('A');
 
@@ -1001,13 +1043,15 @@ void EnigDialog::on_A_Button_pressed()
 
            on_off[abc_to_number['A']] = false;
           ui->A_Button->setEnabled(on_off[abc_to_number['A']]);
+
+          last_letter_on_plug = 'A';
     }
 
 }
 
 void EnigDialog::on_S_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('S');
 
@@ -1026,13 +1070,15 @@ void EnigDialog::on_S_Button_pressed()
 
            on_off[abc_to_number['S']] = false;
           ui->S_Button->setEnabled(on_off[abc_to_number['S']]);
+
+          last_letter_on_plug = 'S';
     }
 
 }
 
 void EnigDialog::on_D_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('D');
 
@@ -1051,12 +1097,14 @@ void EnigDialog::on_D_Button_pressed()
 
            on_off[abc_to_number['D']] = false;
           ui->D_Button->setEnabled(on_off[abc_to_number['D']]);
+
+        last_letter_on_plug = 'D';
     }
 }
 
 void EnigDialog::on_F_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('F');
 
@@ -1075,12 +1123,14 @@ void EnigDialog::on_F_Button_pressed()
 
            on_off[abc_to_number['F']] = false;
           ui->F_Button->setEnabled(on_off[abc_to_number['F']]);
+
+        last_letter_on_plug = 'F';
     }
 }
 
 void EnigDialog::on_G_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('G');
 
@@ -1099,12 +1149,14 @@ void EnigDialog::on_G_Button_pressed()
 
            on_off[abc_to_number['G']] = false;
           ui->G_Button->setEnabled(on_off[abc_to_number['G']]);
+
+        last_letter_on_plug = 'G';
     }
 }
 
 void EnigDialog::on_H_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('H');
 
@@ -1123,12 +1175,14 @@ void EnigDialog::on_H_Button_pressed()
 
            on_off[abc_to_number['H']] = false;
           ui->H_Button->setEnabled(on_off[abc_to_number['H']]);
+
+        last_letter_on_plug = 'H';
     }
 }
 
 void EnigDialog::on_J_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('J');
 
@@ -1147,12 +1201,15 @@ void EnigDialog::on_J_Button_pressed()
 
            on_off[abc_to_number['J']] = false;
           ui->J_Button->setEnabled(on_off[abc_to_number['J']]);
+
+
+        last_letter_on_plug = 'J';
     }
 }
 
 void EnigDialog::on_K_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('K');
 
@@ -1171,6 +1228,8 @@ void EnigDialog::on_K_Button_pressed()
 
            on_off[abc_to_number['K']] = false;
           ui->K_Button->setEnabled(on_off[abc_to_number['K']]);
+
+        last_letter_on_plug = 'K';
     }
 }
 
@@ -1181,7 +1240,7 @@ void EnigDialog::on_K_Button_pressed()
 
 void EnigDialog::on_P_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('P');
 
@@ -1200,12 +1259,14 @@ void EnigDialog::on_P_Button_pressed()
 
            on_off[abc_to_number['P']] = false;
           ui->P_Button->setEnabled(on_off[abc_to_number['P']]);
+
+        last_letter_on_plug = 'P';
     }
 }
 
 void EnigDialog::on_Y_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('Y');
 
@@ -1224,12 +1285,14 @@ void EnigDialog::on_Y_Button_pressed()
 
            on_off[abc_to_number['Y']] = false;
           ui->Y_Button->setEnabled(on_off[abc_to_number['Y']]);
+
+        last_letter_on_plug = 'Y';
     }
 }
 
 void EnigDialog::on_X_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('X');
 
@@ -1248,12 +1311,14 @@ void EnigDialog::on_X_Button_pressed()
 
            on_off[abc_to_number['X']] = false;
           ui->X_Button->setEnabled(on_off[abc_to_number['X']]);
+
+        last_letter_on_plug = 'X';
     }
 }
 
 void EnigDialog::on_C_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()<20)
     {
         input.push_back('C');
 
@@ -1272,12 +1337,14 @@ void EnigDialog::on_C_Button_pressed()
 
            on_off[abc_to_number['C']] = false;
           ui->C_Button->setEnabled(on_off[abc_to_number['C']]);
+
+        last_letter_on_plug = 'C';
     }
 }
 
 void EnigDialog::on_V_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('V');
 
@@ -1296,12 +1363,14 @@ void EnigDialog::on_V_Button_pressed()
 
            on_off[abc_to_number['V']] = false;
           ui->V_Button->setEnabled(on_off[abc_to_number['V']]);
+
+        last_letter_on_plug = 'V';
     }
 }
 
 void EnigDialog::on_B_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('B');
 
@@ -1320,12 +1389,14 @@ void EnigDialog::on_B_Button_pressed()
 
            on_off[abc_to_number['B']] = false;
           ui->B_Button->setEnabled(on_off[abc_to_number['B']]);
+
+        last_letter_on_plug = 'B';
     }
 }
 
 void EnigDialog::on_N_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('N');
 
@@ -1344,12 +1415,14 @@ void EnigDialog::on_N_Button_pressed()
 
            on_off[abc_to_number['N']] = false;
           ui->N_Button->setEnabled(on_off[abc_to_number['N']]);
+
+        last_letter_on_plug = 'N';
     }
 }
 
 void EnigDialog::on_M_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('M');
 
@@ -1368,12 +1441,15 @@ void EnigDialog::on_M_Button_pressed()
 
            on_off[abc_to_number['M']] = false;
           ui->M_Button->setEnabled(on_off[abc_to_number['M']]);
+
+
+        last_letter_on_plug = 'M';
     }
 }
 
 void EnigDialog::on_L_Button_pressed()
 {
-    if(input.size()<=20)
+    if(input.size()< 20)
     {
         input.push_back('L');
 
@@ -1392,6 +1468,8 @@ void EnigDialog::on_L_Button_pressed()
 
            on_off[abc_to_number['L']] = false;
           ui->L_Button->setEnabled(on_off[abc_to_number['L']]);
+
+        last_letter_on_plug = 'L';
     }
 }
 
@@ -1406,27 +1484,33 @@ void EnigDialog::on_clear_panel_pressed()
     ui->Plug_board_monitor->clear();
     for(auto &x : on_off)x = true;
 
+    update();
+}
+
+void EnigDialog::update()
+{
     ui->Q_Button->setEnabled(on_off[abc_to_number['Q']]);
     ui->W_Button->setEnabled(on_off[abc_to_number['W']]);
     ui->E_Button->setEnabled(on_off[abc_to_number['E']]);
     ui->R_Button->setEnabled(on_off[abc_to_number['R']]);
     ui->T_Button->setEnabled(on_off[abc_to_number['T']]);
     ui->Z_Button->setEnabled(on_off[abc_to_number['Z']]);
+
     ui->U_Button->setEnabled(on_off[abc_to_number['U']]);
     ui->I_Button->setEnabled(on_off[abc_to_number['I']]);
     ui->O_Button->setEnabled(on_off[abc_to_number['O']]);
-    //----------------------------------------------------
     ui->A_Button->setEnabled(on_off[abc_to_number['A']]);
     ui->S_Button->setEnabled(on_off[abc_to_number['S']]);
     ui->D_Button->setEnabled(on_off[abc_to_number['D']]);
+
     ui->F_Button->setEnabled(on_off[abc_to_number['F']]);
     ui->G_Button->setEnabled(on_off[abc_to_number['G']]);
     ui->H_Button->setEnabled(on_off[abc_to_number['H']]);
     ui->J_Button->setEnabled(on_off[abc_to_number['J']]);
     ui->K_Button->setEnabled(on_off[abc_to_number['K']]);
-
-   //----------------------------------------------------
     ui->P_Button->setEnabled(on_off[abc_to_number['P']]);
+
+
     ui->Y_Button->setEnabled(on_off[abc_to_number['Y']]);
     ui->X_Button->setEnabled(on_off[abc_to_number['X']]);
     ui->C_Button->setEnabled(on_off[abc_to_number['C']]);
@@ -1435,6 +1519,6 @@ void EnigDialog::on_clear_panel_pressed()
     ui->N_Button->setEnabled(on_off[abc_to_number['N']]);
     ui->M_Button->setEnabled(on_off[abc_to_number['M']]);
     ui->L_Button->setEnabled(on_off[abc_to_number['L']]);
+
+
 }
-
-

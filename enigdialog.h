@@ -107,6 +107,8 @@ private slots:
     void on_clear_panel_pressed();
 
 
+    void update();
+
 
 private:
     Ui::EnigDialog *ui;

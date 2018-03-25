@@ -432,8 +432,6 @@ QString plug_key;
 std::map<char,char>plug_board;
 
 bool begin = true; // bool для удобства отображения plug для черточки между буквами
-std::vector<bool>is_up; // show uppercase letter or lower case letter was entered
-
 
 std::vector<bool>on_off(26,true); //indicates what letters were entered on plugboard
 
@@ -518,9 +516,6 @@ void EnigDialog::on_Encrypt_Button_pressed()
 {
     //Заполняем контейнеры с использованием коммутационной панели
 
-    is_up.clear(); //очистили контейнер показывающий, в каком положении
-    // была записана буква
-
     if(input.size()%2 != 0 && input.size() != 0 )
         input.pop_back();
 
@@ -562,13 +557,6 @@ void EnigDialog::on_Encrypt_Button_pressed()
 
     for(int i = 0;i<input_text.size();i++)
     {
-        if(isupper(input_text[i]))
-            is_up.push_back(true);
-        else
-            is_up.push_back(false);
-
-
-
         input_text[i] = toupper(input_text[i]);
 
         if (plug_board.find(input_text[i]) != plug_board.end())
@@ -655,9 +643,6 @@ void EnigDialog::on_Dencrypt_Button_pressed()
             // Здесь ищем среди введенных на плуге
             //а дальше буква идет в шифратор encryption(char)
         }
-
-        if(!is_up[i])
-            input_text[i] = tolower(input_text[i]);
 
         result_dec += input_text[i] ;
     }

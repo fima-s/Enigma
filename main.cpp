@@ -18,15 +18,14 @@ std::string wheel3		= "BDFHJLCPRTXVZNYEIWGAKMUSQO";
 std::string reflector_B = "YRUHQSLDPXNGOKMIEBFZCWVJAT";
 
 
-std::unordered_map<char, int>abc_to_number;
+std::unordered_map<char, int>abc_to_number; //fast functions for swift from letters to their number equivalent
 std::unordered_map<int, char>number_to_abc;
 
 
-//std::unordered_map<char, char>ref_B_tran;
 
 std::vector<int>rotor1_vec;
 std::vector<int>rotor2_vec;
-std::vector<int>rotor3_vec; // названия векторов соотвествуют названию колес которые в них помещаются
+std::vector<int>rotor3_vec;
 
 
 std::vector<int>ref_B_vec;

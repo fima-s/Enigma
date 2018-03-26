@@ -17,7 +17,7 @@ public:
 
 private slots:
 
-// шифрование без учета коммутационной панели
+// Encryption without plug board
 
     void on_slow_rotor_button_plus_pressed();
 
@@ -49,6 +49,8 @@ private slots:
 
     void on_fast_rotor_letter_textChanged(const QString &arg1);
 //---------------------------------------------------------------
+
+//Plug board functions
 
     void on_Q_Button_pressed();
 

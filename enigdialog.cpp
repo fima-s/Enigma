@@ -13,7 +13,7 @@
 #include <QMap>
 #include <QVector>
 
-namespace rotor //диски врещние бабин шифрования
+namespace rotor // initialization rotor positions variables
 {
     int rotor1 = 0; // fast
     int rotor2 = 0; // middle
@@ -31,7 +31,7 @@ extern std::string reflector_B ;
 
 extern std::vector<int>rotor1_vec;
 extern std::vector<int>rotor2_vec;
-extern std::vector<int>rotor3_vec; // названия векторов соотвествуют названию колес которые в них помещаются
+extern std::vector<int>rotor3_vec; // name of vector approproate to rotors var
 
 
 extern std::vector<int>ref_B_vec;
@@ -208,7 +208,7 @@ char encryption(char input)
 
 char decryption(char input)
 {
-    if (!isalpha(input)) //даже ротор вращать не будем 	//return input;
+    if (!isalpha(input)) //даже ротор вращать не будем
         return input;
     else
     {
@@ -835,7 +835,7 @@ void EnigDialog::on_R_Button_pressed()
 
 }
 
-void EnigDialog::on_Delete_button_pressed() //в самый низ
+void EnigDialog::on_Delete_button_pressed()
 {
     if(input.size() != 0)
     {
@@ -864,9 +864,12 @@ void EnigDialog::on_Delete_button_pressed() //в самый низ
         for(auto &x : on_off) x = true;
 
     }
+
+   last_letter_on_plug = input[input.size()-1];
+
    ui->Plug_board_monitor->setText(plug_key);
   // Список обновления всех кнопок
-    update();
+   update();
 
 }
 

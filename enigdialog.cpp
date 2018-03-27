@@ -520,7 +520,14 @@ void EnigDialog::on_Encrypt_Button_pressed()
     //Заполняем контейнеры с использованием коммутационной панели
 
     if(plug_board_input_letters.size()%2 != 0 && plug_board_input_letters.size() != 0 )
+    {
+        last_letter_on_plug = plug_board_input_letters[plug_board_input_letters.size()-1];
+
         plug_board_input_letters.pop_back();
+
+        on_off[abc_to_number[last_letter_on_plug]] = true;
+
+    }
 
     if(plug_board_output_QString.size() % 2 != 0)
     {
@@ -551,16 +558,16 @@ void EnigDialog::on_Encrypt_Button_pressed()
 
     // ABCDEFGHIJKLMNOPQRSTUVWXYZ tester
 
-//    for(auto p = plug_board.begin();p!= plug_board.end();++p)
-//       std::cout << p->first<<"-"<<p->second<<"  ";
-//    std::cout << std::endl;
-//    std::cout << plug_board.size()<<std::endl;
+    for(auto p = plug_board.begin();p!= plug_board.end();++p)
+       std::cout << p->first<<"-"<<p->second<<"  ";
+    std::cout << std::endl;
+    std::cout << plug_board.size()<<std::endl;
 
-//    for(auto x =plug_board_input_letters.begin();x!=plug_board_input_letters.end();++x )
-//        std::cout << *x<<" ";
-//    std::cout << std::endl;
-//    std::cout << plug_board_input_letters.size()<<std::endl;
-//    std::cout <<"--------------------" <<std::endl;
+    for(auto x =plug_board_input_letters.begin();x!=plug_board_input_letters.end();++x )
+        std::cout << *x<<" ";
+    std::cout << std::endl;
+    std::cout << plug_board_input_letters.size()<<std::endl;
+    std::cout <<"--------------------" <<std::endl;
 
 
     QString str=ui->input_text->toPlainText();
@@ -607,7 +614,12 @@ void EnigDialog::on_Dencrypt_Button_pressed()
 
      if(plug_board_input_letters.size()%2 != 0 && plug_board_input_letters.size() != 0 )
      {
-          plug_board_input_letters.pop_back();
+         last_letter_on_plug = plug_board_input_letters[plug_board_input_letters.size()-1];
+
+         plug_board_input_letters.pop_back();
+
+         on_off[abc_to_number[last_letter_on_plug]] = true;
+
      }
 
 
@@ -653,6 +665,8 @@ void EnigDialog::on_Dencrypt_Button_pressed()
         input_text[i] = toupper(input_text[i]);
 
         input_text[i] = decryption(input_text[i]);
+        // Сначала дешифруем затем используем коммутационную панель
+
 
         if (plug_board.find(input_text[i]) != plug_board.end())
         {

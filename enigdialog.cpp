@@ -2,6 +2,7 @@
 #include "enigdialog.h"
 #include "ui_enigdialog.h"
 
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <map>
@@ -425,9 +426,9 @@ EnigDialog::~EnigDialog()
 char last_letter_on_plug = 'A';
 
 
-std::vector<char>input;
+std::vector<char>plug_board_input_letters;
 
-QString plug_key;
+QString plug_board_output_QString;
 
 std::map<char,char>plug_board;
 
@@ -514,38 +515,52 @@ void EnigDialog::on_fast_rotor_button_minus_pressed()
 
 void EnigDialog::on_Encrypt_Button_pressed()
 {
+    plug_board.clear();
+
     //Заполняем контейнеры с использованием коммутационной панели
 
-    if(input.size()%2 != 0 && input.size() != 0 )
-        input.pop_back();
+    if(plug_board_input_letters.size()%2 != 0 && plug_board_input_letters.size() != 0 )
+        plug_board_input_letters.pop_back();
 
-    if(plug_key.size() % 2 != 0)
+    if(plug_board_output_QString.size() % 2 != 0)
     {
-        std::string temp_plug_key = plug_key.toStdString();
+        std::string temp_plug_key = plug_board_output_QString.toStdString();
         temp_plug_key.pop_back();
 
-        plug_key = QString::fromUtf8(temp_plug_key.c_str());
-        ui->Plug_board_monitor->setText(plug_key);
+        plug_board_output_QString = QString::fromUtf8(temp_plug_key.c_str());
+        ui->Plug_board_monitor->setText(plug_board_output_QString);
 
         begin = true;
 
-        on_off[abc_to_number[last_letter_on_plug]] = true;
-
-        update();
-
     }
 
-
-
-
-    if(!input.empty())
+    for(auto p = plug_board_input_letters.begin();p!=plug_board_input_letters.end();++p)
     {
-        for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
-        {
-             plug_board[input[i + 1]] = input[i];
-             plug_board[input[i]] = input[i + 1];
-        }
+        on_off[abc_to_number[*p]] = false;
+
     }
+
+    update();
+
+    for (int i = 0; i < plug_board_input_letters.size(); i += 2) //pair A-B and B-A is equal
+    {
+         plug_board[plug_board_input_letters[i + 1]] = plug_board_input_letters[i];
+         plug_board[plug_board_input_letters[i]] = plug_board_input_letters[i + 1];
+    }
+
+
+    // ABCDEFGHIJKLMNOPQRSTUVWXYZ tester
+
+//    for(auto p = plug_board.begin();p!= plug_board.end();++p)
+//       std::cout << p->first<<"-"<<p->second<<"  ";
+//    std::cout << std::endl;
+//    std::cout << plug_board.size()<<std::endl;
+
+//    for(auto x =plug_board_input_letters.begin();x!=plug_board_input_letters.end();++x )
+//        std::cout << *x<<" ";
+//    std::cout << std::endl;
+//    std::cout << plug_board_input_letters.size()<<std::endl;
+//    std::cout <<"--------------------" <<std::endl;
 
 
     QString str=ui->input_text->toPlainText();
@@ -586,39 +601,41 @@ void EnigDialog::on_Encrypt_Button_pressed()
 
 void EnigDialog::on_Dencrypt_Button_pressed()
 {
+    plug_board.clear();
+
     //Заполняем контейнеры с использованием коммутационной панели
 
-     if(input.size()%2 != 0 && input.size() != 0 )
+     if(plug_board_input_letters.size()%2 != 0 && plug_board_input_letters.size() != 0 )
      {
-          input.pop_back();
+          plug_board_input_letters.pop_back();
      }
 
 
-     if(plug_key.size() % 2 != 0)
+     if(plug_board_output_QString.size() % 2 != 0)
      {
-         std::string temp_plug_key = plug_key.toStdString();
+         std::string temp_plug_key = plug_board_output_QString.toStdString();
          temp_plug_key.pop_back();
 
-         plug_key = QString::fromUtf8(temp_plug_key.c_str());
-         ui->Plug_board_monitor->setText(plug_key);
+         plug_board_output_QString = QString::fromUtf8(temp_plug_key.c_str());
+         ui->Plug_board_monitor->setText(plug_board_output_QString);
 
          begin = true;
-
-         on_off[abc_to_number[last_letter_on_plug]] = true;
-
-         update();
      }
 
-
-
-
-     if(!input.empty())
+     for(auto p = plug_board_input_letters.begin();p!=plug_board_input_letters.end();++p)
      {
-         for (int i = 0; i < input.size(); i += 2) //pair A-B and B-A is equal
-         {
-              plug_board[input[i + 1]] = input[i];
-              plug_board[input[i]] = input[i + 1];
-         }
+         on_off[abc_to_number[*p]] = false;
+
+     }
+
+     update();
+
+
+
+     for (int i = 0; i < plug_board_input_letters.size(); i += 2) //pair A-B and B-A is equal
+     {
+          plug_board[plug_board_input_letters[i + 1]] = plug_board_input_letters[i];
+          plug_board[plug_board_input_letters[i]] = plug_board_input_letters[i + 1];
      }
 
 
@@ -718,23 +735,23 @@ void EnigDialog::on_fast_rotor_letter_textChanged(const QString &arg1)
 
 void EnigDialog::on_Q_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('Q');
+        plug_board_input_letters.push_back('Q');
 
         if(begin)
         {
-          plug_key+=QString("Q");// начало пары
+          plug_board_output_QString+=QString("Q");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-Q ");
+            plug_board_output_QString+= QString("-Q ");
             begin = true;
         }
 
 
-        ui->Plug_board_monitor->setText(plug_key);
+        ui->Plug_board_monitor->setText(plug_board_output_QString);
 
         on_off[abc_to_number['Q']] = false;
         ui->Q_Button->setEnabled(on_off[abc_to_number['Q']]);
@@ -747,22 +764,22 @@ void EnigDialog::on_Q_Button_pressed()
 
 void EnigDialog::on_W_Button_pressed()
 {
-     if(input.size()<20)
+     if(plug_board_input_letters.size()<20)
      {
-         input.push_back('W');
+         plug_board_input_letters.push_back('W');
 
          if(begin)
          {
-           plug_key+=QString("W");// начало пары
+           plug_board_output_QString+=QString("W");// начало пары
            begin = false;
          }
            else if( !begin)
          {
-             plug_key+= QString("-W ");
+             plug_board_output_QString+= QString("-W ");
              begin = true;
          }
 
-         ui->Plug_board_monitor->setText(plug_key);
+         ui->Plug_board_monitor->setText(plug_board_output_QString);
 
           on_off[abc_to_number['W']] = false;
          ui->W_Button->setEnabled(on_off[abc_to_number['W']]);
@@ -776,22 +793,22 @@ void EnigDialog::on_W_Button_pressed()
 
 void EnigDialog::on_E_Button_pressed()
 {
-     if(input.size()<20)
+     if(plug_board_input_letters.size()<20)
      {
-         input.push_back('E');
+         plug_board_input_letters.push_back('E');
 
          if(begin)
          {
-           plug_key+=QString("E");// начало пары
+           plug_board_output_QString+=QString("E");// начало пары
            begin = false;
          }
            else if( !begin)
          {
-             plug_key+= QString("-E ");
+             plug_board_output_QString+= QString("-E ");
              begin = true;
          }
 
-         ui->Plug_board_monitor->setText(plug_key);
+         ui->Plug_board_monitor->setText(plug_board_output_QString);
 
          on_off[abc_to_number['E']] = false;
          ui->E_Button->setEnabled(on_off[abc_to_number['E']]);
@@ -807,22 +824,22 @@ void EnigDialog::on_E_Button_pressed()
 
 void EnigDialog::on_R_Button_pressed()
 {
-         if(input.size()<20)
+         if(plug_board_input_letters.size()<20)
          {
-             input.push_back('R');
+             plug_board_input_letters.push_back('R');
 
              if(begin)
              {
-               plug_key+=QString("R");// начало пары
+               plug_board_output_QString+=QString("R");// начало пары
                begin = false;
              }
                else if( !begin)
              {
-                 plug_key+= QString("-R ");
+                 plug_board_output_QString+= QString("-R ");
                  begin = true;
              }
              // A-B C-D R-Q
-               ui->Plug_board_monitor->setText(plug_key);
+               ui->Plug_board_monitor->setText(plug_board_output_QString);
 
                 on_off[abc_to_number['R']] = false;
                ui->R_Button->setEnabled(on_off[abc_to_number['R']]);
@@ -837,37 +854,34 @@ void EnigDialog::on_R_Button_pressed()
 
 void EnigDialog::on_Delete_button_pressed()
 {
-    if(input.size() != 0)
+    if(plug_board_input_letters.size() > 0)
     {
-        char q  = input[input.size()-1];
+        last_letter_on_plug = plug_board_input_letters[plug_board_input_letters.size()-1];
 
-        input.pop_back();
+        plug_board_input_letters.pop_back();
 
-        on_off[abc_to_number[q]] = true;
+        on_off[abc_to_number[last_letter_on_plug]] = true;
 
-        if(begin == true)
+        if(begin == true) //A-B
         {
-            plug_key.resize(plug_key.size() - 3);
+            plug_board_output_QString.resize(plug_board_output_QString.size() - 3); // A-B_ 3 = " " + letter + "-"
             begin = false; //потенциальная ошибка из за размера
         }
-        else if(begin == false)
+        else if(begin == false) // A
         {
-            plug_key.resize(plug_key.size() - 1);
+            plug_board_output_QString.resize(plug_board_output_QString.size() - 1);
             begin = true;
         }
+
     }
-    else if(plug_key.size() <=1)
+    else
     {
-        plug_key.clear();
-        input.clear();
+        plug_board_input_letters.clear();
         plug_board.clear();
-        for(auto &x : on_off) x = true;
-
     }
+    // требуетсяобовление map
 
-   last_letter_on_plug = input[input.size()-1];
-
-   ui->Plug_board_monitor->setText(plug_key);
+   ui->Plug_board_monitor->setText(plug_board_output_QString);
   // Список обновления всех кнопок
    update();
 
@@ -875,22 +889,22 @@ void EnigDialog::on_Delete_button_pressed()
 
 void EnigDialog::on_T_Button_pressed()
 {
-      if(input.size()<20)
+      if(plug_board_input_letters.size()<20)
       {
-          input.push_back('T');
+          plug_board_input_letters.push_back('T');
 
           if(begin)
           {
-            plug_key+=QString("T");// начало пары
+            plug_board_output_QString+=QString("T");// начало пары
             begin = false;
           }
             else if( !begin)
           {
-              plug_key+= QString("-T ");
+              plug_board_output_QString+= QString("-T ");
               begin = true;
           }
           // A-B C-D R-Q
-            ui->Plug_board_monitor->setText(plug_key);
+            ui->Plug_board_monitor->setText(plug_board_output_QString);
 
              on_off[abc_to_number['T']] = false;
             ui->T_Button->setEnabled(on_off[abc_to_number['T']]);
@@ -903,22 +917,22 @@ void EnigDialog::on_T_Button_pressed()
 
 void EnigDialog::on_Z_Button_pressed()
 {
-      if(input.size()<20)
+      if(plug_board_input_letters.size()<20)
       {
-          input.push_back('Z');
+          plug_board_input_letters.push_back('Z');
 
           if(begin)
           {
-            plug_key+=QString("Z");// начало пары
+            plug_board_output_QString+=QString("Z");// начало пары
             begin = false;
           }
             else if( !begin)
           {
-              plug_key+= QString("-Z ");
+              plug_board_output_QString+= QString("-Z ");
               begin = true;
           }
           // A-B C-D R-Q
-            ui->Plug_board_monitor->setText(plug_key);
+            ui->Plug_board_monitor->setText(plug_board_output_QString);
 
             on_off[abc_to_number['Z']] = false;
             ui->Z_Button->setEnabled(on_off[abc_to_number['Z']]);
@@ -930,22 +944,22 @@ void EnigDialog::on_Z_Button_pressed()
 
 void EnigDialog::on_U_Button_pressed()
 {
-     if(input.size()<20)
+     if(plug_board_input_letters.size()<20)
      {
-         input.push_back('U');
+         plug_board_input_letters.push_back('U');
 
          if(begin)
          {
-           plug_key+=QString("U");// начало пары
+           plug_board_output_QString+=QString("U");// начало пары
            begin = false;
          }
            else if( !begin)
          {
-             plug_key+= QString("-U ");
+             plug_board_output_QString+= QString("-U ");
              begin = true;
          }
          // A-B C-D R-Q
-           ui->Plug_board_monitor->setText(plug_key);
+           ui->Plug_board_monitor->setText(plug_board_output_QString);
 
             on_off[abc_to_number['U']] = false;
            ui->U_Button->setEnabled(on_off[abc_to_number['U']]);
@@ -957,22 +971,22 @@ void EnigDialog::on_U_Button_pressed()
 
 void EnigDialog::on_I_Button_pressed()
 {
-     if(input.size()<20)
+     if(plug_board_input_letters.size()<20)
      {
-         input.push_back('I');
+         plug_board_input_letters.push_back('I');
 
          if(begin)
          {
-           plug_key+=QString("I");// начало пары
+           plug_board_output_QString+=QString("I");// начало пары
            begin = false;
          }
            else if( !begin)
          {
-             plug_key+= QString("-I ");
+             plug_board_output_QString+= QString("-I ");
              begin = true;
          }
          // A-B C-D R-Q
-           ui->Plug_board_monitor->setText(plug_key);
+           ui->Plug_board_monitor->setText(plug_board_output_QString);
 
             on_off[abc_to_number['I']] = false;
            ui->I_Button->setEnabled(on_off[abc_to_number['I']]);
@@ -984,22 +998,22 @@ void EnigDialog::on_I_Button_pressed()
 
 void EnigDialog::on_O_Button_pressed()
 {
-     if(input.size()<20)
+     if(plug_board_input_letters.size()<20)
      {
-         input.push_back('O');
+         plug_board_input_letters.push_back('O');
 
          if(begin)
          {
-           plug_key+=QString("O");// начало пары
+           plug_board_output_QString+=QString("O");// начало пары
            begin = false;
          }
            else if( !begin)
          {
-             plug_key+= QString("-O ");
+             plug_board_output_QString+= QString("-O ");
              begin = true;
          }
          // A-B C-D R-Q
-           ui->Plug_board_monitor->setText(plug_key);
+           ui->Plug_board_monitor->setText(plug_board_output_QString);
 
             on_off[abc_to_number['O']] = false;
            ui->O_Button->setEnabled(on_off[abc_to_number['O']]);
@@ -1012,22 +1026,22 @@ void EnigDialog::on_O_Button_pressed()
 
 void EnigDialog::on_A_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('A');
+        plug_board_input_letters.push_back('A');
 
         if(begin)
         {
-          plug_key+=QString("A");// начало пары
+          plug_board_output_QString+=QString("A");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-A ");
+            plug_board_output_QString+= QString("-A ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['A']] = false;
           ui->A_Button->setEnabled(on_off[abc_to_number['A']]);
@@ -1039,22 +1053,22 @@ void EnigDialog::on_A_Button_pressed()
 
 void EnigDialog::on_S_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('S');
+        plug_board_input_letters.push_back('S');
 
         if(begin)
         {
-          plug_key+=QString("S");// начало пары
+          plug_board_output_QString+=QString("S");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-S ");
+            plug_board_output_QString+= QString("-S ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['S']] = false;
           ui->S_Button->setEnabled(on_off[abc_to_number['S']]);
@@ -1066,22 +1080,22 @@ void EnigDialog::on_S_Button_pressed()
 
 void EnigDialog::on_D_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('D');
+        plug_board_input_letters.push_back('D');
 
         if(begin)
         {
-          plug_key+=QString("D");// начало пары
+          plug_board_output_QString+=QString("D");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-D ");
+            plug_board_output_QString+= QString("-D ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['D']] = false;
           ui->D_Button->setEnabled(on_off[abc_to_number['D']]);
@@ -1092,22 +1106,22 @@ void EnigDialog::on_D_Button_pressed()
 
 void EnigDialog::on_F_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('F');
+        plug_board_input_letters.push_back('F');
 
         if(begin)
         {
-          plug_key+=QString("F");// начало пары
+          plug_board_output_QString+=QString("F");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-F ");
+            plug_board_output_QString+= QString("-F ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['F']] = false;
           ui->F_Button->setEnabled(on_off[abc_to_number['F']]);
@@ -1118,22 +1132,22 @@ void EnigDialog::on_F_Button_pressed()
 
 void EnigDialog::on_G_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('G');
+        plug_board_input_letters.push_back('G');
 
         if(begin)
         {
-          plug_key+=QString("G");// начало пары
+          plug_board_output_QString+=QString("G");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-G ");
+            plug_board_output_QString+= QString("-G ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['G']] = false;
           ui->G_Button->setEnabled(on_off[abc_to_number['G']]);
@@ -1144,22 +1158,22 @@ void EnigDialog::on_G_Button_pressed()
 
 void EnigDialog::on_H_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('H');
+        plug_board_input_letters.push_back('H');
 
         if(begin)
         {
-          plug_key+=QString("H");// начало пары
+          plug_board_output_QString+=QString("H");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-H ");
+            plug_board_output_QString+= QString("-H ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['H']] = false;
           ui->H_Button->setEnabled(on_off[abc_to_number['H']]);
@@ -1170,22 +1184,22 @@ void EnigDialog::on_H_Button_pressed()
 
 void EnigDialog::on_J_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('J');
+        plug_board_input_letters.push_back('J');
 
         if(begin)
         {
-          plug_key+=QString("J");// начало пары
+          plug_board_output_QString+=QString("J");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-J ");
+            plug_board_output_QString+= QString("-J ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['J']] = false;
           ui->J_Button->setEnabled(on_off[abc_to_number['J']]);
@@ -1197,22 +1211,22 @@ void EnigDialog::on_J_Button_pressed()
 
 void EnigDialog::on_K_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('K');
+        plug_board_input_letters.push_back('K');
 
         if(begin)
         {
-          plug_key+=QString("K");// начало пары
+          plug_board_output_QString+=QString("K");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-K ");
+            plug_board_output_QString+= QString("-K ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['K']] = false;
           ui->K_Button->setEnabled(on_off[abc_to_number['K']]);
@@ -1228,22 +1242,22 @@ void EnigDialog::on_K_Button_pressed()
 
 void EnigDialog::on_P_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('P');
+        plug_board_input_letters.push_back('P');
 
         if(begin)
         {
-          plug_key+=QString("P");// начало пары
+          plug_board_output_QString+=QString("P");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-P ");
+            plug_board_output_QString+= QString("-P ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['P']] = false;
           ui->P_Button->setEnabled(on_off[abc_to_number['P']]);
@@ -1254,22 +1268,22 @@ void EnigDialog::on_P_Button_pressed()
 
 void EnigDialog::on_Y_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('Y');
+        plug_board_input_letters.push_back('Y');
 
         if(begin)
         {
-          plug_key+=QString("Y");// начало пары
+          plug_board_output_QString+=QString("Y");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-Y ");
+            plug_board_output_QString+= QString("-Y ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['Y']] = false;
           ui->Y_Button->setEnabled(on_off[abc_to_number['Y']]);
@@ -1280,22 +1294,22 @@ void EnigDialog::on_Y_Button_pressed()
 
 void EnigDialog::on_X_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('X');
+        plug_board_input_letters.push_back('X');
 
         if(begin)
         {
-          plug_key+=QString("X");// начало пары
+          plug_board_output_QString+=QString("X");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-X ");
+            plug_board_output_QString+= QString("-X ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['X']] = false;
           ui->X_Button->setEnabled(on_off[abc_to_number['X']]);
@@ -1306,22 +1320,22 @@ void EnigDialog::on_X_Button_pressed()
 
 void EnigDialog::on_C_Button_pressed()
 {
-    if(input.size()<20)
+    if(plug_board_input_letters.size()<20)
     {
-        input.push_back('C');
+        plug_board_input_letters.push_back('C');
 
         if(begin)
         {
-          plug_key+=QString("C");// начало пары
+          plug_board_output_QString+=QString("C");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-C ");
+            plug_board_output_QString+= QString("-C ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['C']] = false;
           ui->C_Button->setEnabled(on_off[abc_to_number['C']]);
@@ -1332,22 +1346,22 @@ void EnigDialog::on_C_Button_pressed()
 
 void EnigDialog::on_V_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('V');
+        plug_board_input_letters.push_back('V');
 
         if(begin)
         {
-          plug_key+=QString("V");// начало пары
+          plug_board_output_QString+=QString("V");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-V ");
+            plug_board_output_QString+= QString("-V ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['V']] = false;
           ui->V_Button->setEnabled(on_off[abc_to_number['V']]);
@@ -1358,22 +1372,22 @@ void EnigDialog::on_V_Button_pressed()
 
 void EnigDialog::on_B_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('B');
+        plug_board_input_letters.push_back('B');
 
         if(begin)
         {
-          plug_key+=QString("B");// начало пары
+          plug_board_output_QString+=QString("B");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-B ");
+            plug_board_output_QString+= QString("-B ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['B']] = false;
           ui->B_Button->setEnabled(on_off[abc_to_number['B']]);
@@ -1384,22 +1398,22 @@ void EnigDialog::on_B_Button_pressed()
 
 void EnigDialog::on_N_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('N');
+        plug_board_input_letters.push_back('N');
 
         if(begin)
         {
-          plug_key+=QString("N");// начало пары
+          plug_board_output_QString+=QString("N");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-N ");
+            plug_board_output_QString+= QString("-N ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['N']] = false;
           ui->N_Button->setEnabled(on_off[abc_to_number['N']]);
@@ -1410,22 +1424,22 @@ void EnigDialog::on_N_Button_pressed()
 
 void EnigDialog::on_M_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('M');
+        plug_board_input_letters.push_back('M');
 
         if(begin)
         {
-          plug_key+=QString("M");// начало пары
+          plug_board_output_QString+=QString("M");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-M ");
+            plug_board_output_QString+= QString("-M ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['M']] = false;
           ui->M_Button->setEnabled(on_off[abc_to_number['M']]);
@@ -1437,22 +1451,22 @@ void EnigDialog::on_M_Button_pressed()
 
 void EnigDialog::on_L_Button_pressed()
 {
-    if(input.size()< 20)
+    if(plug_board_input_letters.size()< 20)
     {
-        input.push_back('L');
+        plug_board_input_letters.push_back('L');
 
         if(begin)
         {
-          plug_key+=QString("L");// начало пары
+          plug_board_output_QString+=QString("L");// начало пары
           begin = false;
         }
           else if( !begin)
         {
-            plug_key+= QString("-L ");
+            plug_board_output_QString+= QString("-L ");
             begin = true;
         }
         // A-B C-D R-Q
-          ui->Plug_board_monitor->setText(plug_key);
+          ui->Plug_board_monitor->setText(plug_board_output_QString);
 
            on_off[abc_to_number['L']] = false;
           ui->L_Button->setEnabled(on_off[abc_to_number['L']]);
@@ -1463,8 +1477,8 @@ void EnigDialog::on_L_Button_pressed()
 
 void EnigDialog::on_clear_panel_pressed()
 {
-    input.clear();
-    plug_key.clear();
+    plug_board_input_letters.clear();
+    plug_board_output_QString.clear();
     plug_board.clear();
 
     begin = true;

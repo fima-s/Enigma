@@ -7,3 +7,6 @@ By the using of simple functions for encryption and decryption been achieved col
 P.S.
 
 If dont need any code and you need only Enigma to keep your own secrets just download directory Ready_machine, its compilated version of Enigma for Windows (I checked its work on Windows 7 x64). Dont forget to keep .dll files in one directory with .exe file. Despite the age of Enigma machine its code is still hard to decrypt without the knowlege of the approximate content of the message.
+
+
+![](https://github.com/fima-s/Enigma/blob/master/how_enigma_looks_like.png)
